@@ -3,8 +3,15 @@ const hostname = 'localhost';
 const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
+const { listeners } = require('process');
 require('dotenv').config({path:'.env'});
 const port = process.env.PORT;
+
+var readline = require("readline"),
+    rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
 
 const options = {
   host: hostname,
@@ -25,10 +32,9 @@ const socket = tls.connect(options, () => {
 })
   .setEncoding('utf8')
   .on('data', (data) => {
-    console.log("Received: ", data);
+    //console.log("Received: ", data);
 
     // Close after receive data
-    socket.end();
   })
   .on('close', () => {
     console.log("Connection closed");
@@ -39,4 +45,38 @@ const socket = tls.connect(options, () => {
   .on('error', (error) => {
     console.error(error);
     socket.destroy();
+  });
+
+  socket.on('secureConnect', () => {
+    if(socket.authorized){
+
+      var data = {};
+
+      rl.question("Enter your username : \n", function(username){
+        rl.input.on("keypress", function (c, k) {
+          // get the number of characters entered so far:
+          var len = rl.line.length;
+          // move cursor back to the beginning of the input:
+          readline.moveCursor(rl.output, -len, 0);
+          // clear everything to the right of the cursor:
+          readline.clearLine(rl.output, 1);
+          // replace the original input with asterisks:
+          for (var i = 0; i < len; i++) {
+            rl.output.write("*");
+          }
+        });
+        rl.question("Enter your password : \n", function (password){
+          data ={
+            username: username,
+            password: password
+          };
+          socket.write(JSON.stringify(data));
+          rl.close();
+          console.log('\n');
+          socket.end();
+          rl.history = rl.history.slice(2);
+        });
+        
+      });
+    }
   });
