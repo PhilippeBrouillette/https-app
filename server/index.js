@@ -1,12 +1,14 @@
 'use strict';
 const tls = require('tls');
 const fs = require('fs');
-require('dotenv').config({ path: './var.env' })
+const path = require('path');
+require('dotenv').config({path:'.env'});
 const port = process.env.PORT;
+
 
 const options = {
   key: fs.readFileSync('server/ssl/key.pem'),
-  passphrase: process.env.KEY_PASSWORD,
+  passphrase:process.env.KEY_PASSWORD,
   cert: fs.readFileSync('server/ssl/signed_certificate.pem'),
   ca: fs.readFileSync('certificat/autorite.pem'),
   requestCert: true, // ask for a client cert
@@ -14,7 +16,7 @@ const options = {
 };
 
 const server = tls.createServer(options, (socket) => {
-  socket.write('Salut client confidentiel je ne veux pas que les gens voient ce que je t' !\n');
+  socket.write('Salut client confidentiel je ne veux pas que les gens voient ce que je dit!\n');
   socket.setEncoding('utf8');
   socket.pipe(socket);
 })

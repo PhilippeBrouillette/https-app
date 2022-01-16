@@ -1,16 +1,16 @@
 'use strict';
-
-const port = process.env.PORT;
 const hostname = 'localhost';
-
 const tls = require('tls');
 const fs = require('fs');
+const path = require('path');
+require('dotenv').config({path:'.env'});
+const port = process.env.PORT;
 
 const options = {
   host: hostname,
   port: port,
   key: fs.readFileSync('client/ssl/key_client.pem'),
-  passphrase: process.env.KEY_PASSWORD,
+  passphrase:process.env.KEY_PASSWORD,
   cert: fs.readFileSync('client/ssl/signed_certificate_client.pem'),
   ca: fs.readFileSync('certificat/autorite.pem'),
   ciphers: 'HIGH',
