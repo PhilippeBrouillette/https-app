@@ -3,6 +3,7 @@ const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 const { listeners } = require('process');
+const { Server } = require('http');
 require('dotenv').config({path:'.env'});
 const port = process.env.PORT;
 const zonename = process.env.ZONE
@@ -38,11 +39,6 @@ const socket = tls.connect(options, () => {
   }
 })
   .setEncoding('utf8')
-  .on('data', (data) => {
-    //console.log("Received: ", data);
-
-    // Close after receive data
-  })
   .on('close', () => {
     console.log("Connection closed");
   })
@@ -56,6 +52,47 @@ const socket = tls.connect(options, () => {
 
   socket.on('secureConnect', () => {
     if(socket.authorized){
+
+
+      socket.on('data', (data) => {
+        
+        RecieveDataFromServer(data);
+        socket.end();
+      });
+
+      UsernamePrompt(socket);
+
+    }
+  });
+
+  function SendDataToServer(event, message, socket){
+
+    const JSONMessage = {"type": event, "data": message}
+    socket.write(JSON.stringify(JSONMessage));
+  
+  }
+  
+  function RecieveDataFromServer(data){
+    
+    if(isJson(data)){
+
+      const server_message = JSON.parse(data);
+
+      switch (server_message.type) {
+        case "SUCCESS":
+          console.error(server_message.data.message);
+          break;
+        case "ERROR":
+          console.error(server_message.data.message);
+          break;
+
+        default:
+
+      }
+    }
+  }
+
+  function UsernamePrompt(socket){
 
       var data = {};
 
@@ -77,14 +114,31 @@ const socket = tls.connect(options, () => {
             username: username,
             password: password
           };
-          socket.write(JSON.stringify(data));
+          SendDataToServer("LOGIN", JSON.stringify(data), socket);
           rl.close();
           console.log('\n');
-          socket.end();
           rl.history = rl.history.slice(2);
         });
         
       });
+  }
+
+
+  function isJson(item) {
+    item = typeof item !== "string"
+        ? JSON.stringify(item)
+        : item;
+  
+    try {
+        item = JSON.parse(item);
+    } catch (e) {
+        return false;
     }
-  });
+  
+    if (typeof item === "object" && item !== null) {
+        return true;
+    }
+  
+    return false;
+  }  });
 })();
