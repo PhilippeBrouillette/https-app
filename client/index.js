@@ -1,20 +1,27 @@
 'use strict';
-const hostname = 'localhost';
 const tls = require('tls');
 const fs = require('fs');
 const path = require('path');
 const { listeners } = require('process');
 require('dotenv').config({path:'.env'});
 const port = process.env.PORT;
+const zonename = process.env.ZONE
+const { Resolver } = require('dns').promises;
+const resolver = new Resolver();
+resolver.setServers(['127.0.0.1:9000']);
 
+
+(async function() {
+  const ipAdresses = await resolver.resolve4(zonename);
+  console.log("voici les ipv4 trouves :" , ipAdresses);
+  const hostname = ipAdresses[0]
 var readline = require("readline"),
     rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
-
-const options = {
-  host: hostname,
+	const options = {
+  host:  hostname === "127.0.0.1" ? 'localhost' : hostname,
   port: port,
   key: fs.readFileSync('client/ssl/key_client.pem'),
   passphrase:process.env.KEY_PASSWORD,
@@ -80,3 +87,4 @@ const socket = tls.connect(options, () => {
       });
     }
   });
+})();
