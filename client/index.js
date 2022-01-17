@@ -85,6 +85,9 @@ const socket = tls.connect(options, () => {
         case "ERROR":
           console.error(server_message.data.message);
           break;
+		case "SignUp":
+          console.error(server_message.data.message);
+          break;
 
         default:
 

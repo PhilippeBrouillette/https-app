@@ -135,7 +135,9 @@ function RecieveDataFromClient(data, socket){
                   });
 
                   fs.writeFileSync('./user.json', JSON.stringify(users), 'utf8');
-
+				  const creation = {message: "You have been registered succesfully.\n"};
+                        SendDataToClient("SignUp", creation, socket);
+                        console.log(creation);
                 });
               }
 
