@@ -140,5 +140,5 @@ const socket = tls.connect(options, () => {
     }
   
     return false;
-  }  });
+  }
 })();
