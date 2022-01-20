@@ -6,7 +6,9 @@ const { listeners } = require('process');
 const { Server } = require('http');
 require('dotenv').config({path:'.env'});
 const port = process.env.PORT;
+// la zone est sauvegarder dans une variable environnement
 const zonename = process.env.ZONE
+// on fait un dig pour aller chercher l'adresse ip
 const { Resolver } = require('dns').promises;
 const resolver = new Resolver();
 resolver.setServers(['127.0.0.1:9000']);
@@ -22,7 +24,7 @@ var readline = require("readline"),
       output: process.stdout
     });
 	const options = {
-  host:  hostname === "127.0.0.1" ? 'localhost' : hostname,
+  host:  hostname === "127.0.0.1" ? 'localhost' : hostname, //vu qu'un certificat ne peut avoir d'adresse Ip, si on trouve l'adresse ip de local host, on la met égal à localhost
   port: port,
   key: fs.readFileSync('client/ssl/key_client.pem'),
   passphrase:process.env.KEY_PASSWORD,
